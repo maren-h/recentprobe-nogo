@@ -135,19 +135,19 @@ function runTrial() {
         probe = "X";
     } else {
         switch (trialInfo.condition) {
-            case "match-recent":
-                if (memoryHistory.length > 0) {
-                    const lastSet = memoryHistory[memoryHistory.length - 1];
-                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-                    memorySet = pickRandomLetters(["X", shared], 5);
-                    memorySet.push(shared);
-                    shuffle(memorySet);
-                    probe = shared;
-                } else {
-                    memorySet = pickRandomLetters(["X"], 6);
-                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-                }
-                break;
+           case "match-recent":
+    if (memoryHistory.length > 0) {
+        const lastSet = memoryHistory[memoryHistory.length - 1];
+        const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+        memorySet = pickRandomLetters(["X", shared], 5);
+        memorySet.push(shared);
+        shuffle(memorySet);
+        probe = shared;
+    } else {
+        memorySet = pickRandomLetters(["X"], 6);
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+    }
+    break;
 
             case "match-nonrecent":
                 const recentMN = memoryHistory.slice(-3).flat();
