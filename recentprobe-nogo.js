@@ -127,76 +127,99 @@ function nextTrial() {
 
 function runTrial() {
     const trialInfo = allTrialConditions[currentTrial];
-    let memorySet = pickRandomLetters(["X"], 6);
+    let memorySet;
     let probe;
 
     if (trialInfo.isNogo) {
+        memorySet = pickRandomLetters(["X"], 6);
         probe = "X";
     } else {
         switch (trialInfo.condition) {
             case "match-recent":
-    if (memoryHistory.length > 0) {
-        const lastSet = memoryHistory[memoryHistory.length - 1];
-        const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-        memorySet = pickRandomLetters(["X", shared], 5);
-        memorySet.push(shared);
-        shuffle(memorySet);
-        probe = shared;
-    } else {
-        memorySet = pickRandomLetters(["X"], 6);
-        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-    }
-    break;
+                if (memoryHistory.length > 0) {
+                    const lastSet = memoryHistory[memoryHistory.length - 1];
+                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+                    memorySet = pickRandomLetters(["X", shared], 5);
+                    memorySet.push(shared);
+                    shuffle(memorySet);
+                    probe = shared;
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
+
             case "match-nonrecent":
-    const recentMN = memoryHistory.slice(-3).flat();
-    const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
-    if (eligibleMN.length > 0) {
-        const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
-        const baseSet = pickRandomLetters(["X", probeMN], 5);
-        memorySet = [...baseSet, probeMN];
-        shuffle(memorySet);
-        probe = probeMN;
-    } else {
-        memorySet = pickRandomLetters(["X"], 6);
-        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-    }
-    break;
+                const recentMN = memoryHistory.slice(-3).flat();
+                const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
+                if (eligibleMN.length > 0) {
+                    const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
+                    const baseSet = pickRandomLetters(["X", probeMN], 5);
+                    memorySet = [...baseSet, probeMN];
+                    shuffle(memorySet);
+                    probe = probeMN;
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
+
             case "nonmatch-recent":
                 if (memoryHistory.length > 0) {
                     const lastSet = memoryHistory[memoryHistory.length - 1];
                     const candidates = lastSet.filter(l => l !== "X");
                     shuffle(candidates);
+                    let found = false;
                     for (let i = 0; i < candidates.length; i++) {
                         const probeCandidate = candidates[i];
                         const tempSet = pickRandomLetters(["X", probeCandidate], 6);
                         if (!tempSet.includes(probeCandidate)) {
                             memorySet = tempSet;
                             probe = probeCandidate;
+                            found = true;
                             break;
                         }
                     }
+                    if (!found) {
+                        memorySet = pickRandomLetters(["X"], 6);
+                        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                    }
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
                 }
                 break;
+
             case "nonmatch-nonrecent":
                 const recentNMN = memoryHistory.slice(-3).flat();
                 memorySet = pickRandomLetters(["X", ...recentNMN], 6);
                 const probeCandidates = letters.filter(
                     l => !memorySet.includes(l) && !recentNMN.includes(l) && l !== "X"
                 );
-                probe = probeCandidates.length > 0
-                    ? probeCandidates[Math.floor(Math.random() * probeCandidates.length)]
-                    : getNonRecentLetter(memoryHistory.concat([memorySet]));
+                if (probeCandidates.length > 0) {
+                    probe = probeCandidates[Math.floor(Math.random() * probeCandidates.length)];
+                } else {
+                    probe = getNonRecentLetter(memoryHistory.concat([memorySet]));
+                }
                 break;
         }
     }
 
+    // Sicherheits-Fallback: Falls probe oder memorySet noch immer fehlen
+    if (!memorySet) {
+        console.warn("memorySet war leer – Default gezogen");
+        memorySet = pickRandomLetters(["X"], 6);
+    }
     if (!probe) {
-        probe = pickRandomLetters(["X", ...memorySet], 1)[0];
+        console.warn("probe war leer – Default gezogen");
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
     }
 
     trials.push({condition: trialInfo.condition, isNogo: trialInfo.isNogo, memorySet, probe});
     memoryHistory.push(memorySet);
     if (memoryHistory.length > 3) memoryHistory.shift();
+
+    console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
 
     displayFixation(1500, () => {
         displayMemorySet(memorySet, 2000, () => {
