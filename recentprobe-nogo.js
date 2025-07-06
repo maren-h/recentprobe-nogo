@@ -135,12 +135,13 @@ function runTrial() {
     } else {
         switch (trialInfo.condition) {
             case "match-recent":
-                if (memoryHistory.length > 0) {
-                    memorySet = pickRandomLetters(["X"], 5);
-                    const lastSet = memoryHistory[memoryHistory.length - 1];
-                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-                    if (!memorySet.includes(shared)) {
-                        memorySet.push(shared);
+    if (memoryHistory.length > 0) {
+        const lastSet = memoryHistory[memoryHistory.length - 1];
+        const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+        memorySet = pickRandomLetters(["X", shared], 5);
+        memorySet.push(shared);
+        shuffle(memorySet);
+        probe = shared;
     } else {
     const alternatives = lastSet.filter(l => !memorySet.includes(l)); 
     }  
