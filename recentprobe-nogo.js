@@ -143,23 +143,24 @@ function runTrial() {
         shuffle(memorySet);
         probe = shared;
     } else {
-        // Wenn es noch kein vorheriges Trial gibt, einfach 6 zufällige Buchstaben nehmen
         memorySet = pickRandomLetters(["X"], 6);
-        // Und einen Probe-Buchstaben aus dem Set ziehen
         probe = memorySet[Math.floor(Math.random() * memorySet.length)];
     }
     break;
             case "match-nonrecent":
-                const recentMN = memoryHistory.slice(-3).flat();
-                const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
-                if (eligibleMN.length > 0) {
-                    const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
-                    const baseSet = pickRandomLetters(["X", probeMN], 5);
-                    memorySet = [...baseSet, probeMN];
-                    shuffle(memorySet);
-                    probe = probeMN;
-                }
-                break;
+    const recentMN = memoryHistory.slice(-3).flat();
+    const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
+    if (eligibleMN.length > 0) {
+        const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
+        const baseSet = pickRandomLetters(["X", probeMN], 5);
+        memorySet = [...baseSet, probeMN];
+        shuffle(memorySet);
+        probe = probeMN;
+    } else {
+        memorySet = pickRandomLetters(["X"], 6);
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+    }
+    break;
             case "nonmatch-recent":
                 if (memoryHistory.length > 0) {
                     const lastSet = memoryHistory[memoryHistory.length - 1];
