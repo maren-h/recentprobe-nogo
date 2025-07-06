@@ -143,12 +143,12 @@ function runTrial() {
         shuffle(memorySet);
         probe = shared;
     } else {
-    const alternatives = lastSet.filter(l => !memorySet.includes(l)); 
-    }  
-                    shuffle(memorySet);
-                    probe = shared;
-                }
-                break;
+        // Wenn es noch kein vorheriges Trial gibt, einfach 6 zufällige Buchstaben nehmen
+        memorySet = pickRandomLetters(["X"], 6);
+        // Und einen Probe-Buchstaben aus dem Set ziehen
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+    }
+    break;
             case "match-nonrecent":
                 const recentMN = memoryHistory.slice(-3).flat();
                 const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
